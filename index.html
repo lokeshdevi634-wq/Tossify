@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decision Helper & 5-in-1 Toss Hub</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #0f172a; color: #ffffff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem; }
+    header { text-align: center; margin-bottom: 2rem; }
+    h1 { font-size: 2.2rem; color: #38bdf8; margin-bottom: 0.5rem; }
+    p.subtitle { color: #94a3b8; font-size: 1rem; }
+
+    /* Navigation Tabs */
+    .tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin-bottom: 2rem; }
+    .tab-btn { background-color: #1e293b; color: #94a3b8; border: 2px solid #334155; padding: 0.7rem 1.2rem; border-radius: 20px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+    .tab-btn:hover { border-color: #38bdf8; color: #ffffff; }
+    .tab-btn.active { background-color: #0284c7; color: #ffffff; border-color: #38bdf8; box-shadow: 0 0 12px rgba(56, 189, 248, 0.4); }
+
+    /* Main Display Container */
+    .container { background-color: #1e293b; border: 2px solid #334155; border-radius: 20px; width: 100%; max-width: 500px; padding: 2.5rem 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 350px; position: relative; }
+    
+    .mode-section { display: none; width: 100%; flex-direction: column; align-items: center; }
+    .mode-section.active { display: flex; }
+
+    /* Action Buttons */
+    .action-btn { margin-top: 2rem; background-color: #10b981; color: white; border: none; padding: 0.9rem 2rem; font-size: 1.1rem; font-weight: bold; border-radius: 25px; cursor: pointer; transition: transform 0.1s, background-color 0.2s; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); }
+    .action-btn:hover { background-color: #059669; transform: translateY(-2px); }
+    .action-btn:active { transform: translateY(0); }
+
+    /* 1. COIN FLIP */
+    .coin { width: 120px; height: 120px; background-color: #f59e0b; border: 4px solid #fef08a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; color: #78350f; box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); transition: transform 0.6s ease-out; }
+    .coin.flipping { animation: flip 0.6s ease-in-out infinite; }
+    @keyframes flip { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
+
+    /* 2. DICE ROLL */
+    .dice { width: 100px; height: 100px; background-color: #ef4444; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; font-weight: bold; color: white; box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); }
+    .dice.rolling { animation: shake 0.4s ease-in-out infinite; }
+    @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(15deg); } 75% { transform: rotate(-15deg); } 100% { transform: rotate(0deg); } }
+
+    /* 3. DECISION SPINNER */
+    .spinner-box { font-size: 2rem; font-weight: bold; color: #a855f7; min-height: 80px; display: flex; align-items: center; justify-content: center; }
+
+    /* 4. MAGIC 8-BALL */
+    .eight-ball { width: 130px; height: 130px; background-color: #0f172a; border: 4px solid #334155; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
+    .eight-inner { width: 70px; height: 70px; background-color: #1e1b4b; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 0.85rem; padding: 5px; color: #818cf8; border: 2px solid #4338ca; }
+
+    /* 5. CARD PICKER */
+    .card { width: 110px; height: 160px; background-color: #ffffff; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #0f172a; font-size: 2rem; font-weight: bold; box-shadow: 0 8px 16px rgba(0,0,0,0.4); }
+    .card.red { color: #dc2626; }
+    .card.black { color: #0f172a; }
+
+    .result-text { margin-top: 1.5rem; font-size: 1.2rem; color: #cbd5e1; min-height: 30px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🎯 Decision Maker & Toss Hub</h1>
+    <p class="subtitle">Confused about a decision? Choose a method below to solve it!</p>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchMode('coin')">🪙 Coin Flip</button>
+    <button class="tab-btn" onclick="switchMode('dice')">🎲 Roll Dice</button>
+    <button class="tab-btn" onclick="switchMode('spinner')">🎡 Decision Wheel</button>
+    <button class="tab-btn" onclick="switchMode('ball')">🔮 Magic 8-Ball</button>
+    <button class="tab-btn" onclick="switchMode('card')">🎴 Draw Card</button>
+  </div>
+
+  <!-- Main Display Card -->
+  <div class="container">
+
+    <!-- 1. Coin Flip -->
+    <div id="coin-mode" class="mode-section active">
+      <div class="coin" id="coinEl">HEADS</div>
+      <div class="result-text" id="coinRes">Flip to make a choice!</div>
+      <button class="action-btn" onclick="flipCoin()">Flip Coin</button>
+    </div>
+
+    <!-- 2. Roll Dice -->
+    <div id="dice-mode" class="mode-section">
+      <div class="dice" id="diceEl">6</div>
+      <div class="result-text" id="diceRes">Roll the dice!</div>
+      <button class="action-btn" onclick="rollDice()">Roll Dice</button>
+    </div>
+
+    <!-- 3. Decision Spinner -->
+    <div id="spinner-mode" class="mode-section">
+      <div class="spinner-box" id="spinEl">❓ READY</div>
+      <div class="result-text" id="spinRes">Click spin to get a random advice!</div>
+      <button class="action-btn" onclick="spinWheel()">Spin Wheel</button>
+    </div>
+
+    <!-- 4. Magic 8-Ball -->
+    <div id="ball-mode" class="mode-section">
+      <div class="eight-ball">
+        <div class="eight-inner" id="ballEl">8</div>
+      </div>
+      <div class="result-text" id="ballRes">Ask a Yes/No question in your mind!</div>
+      <button class="action-btn" onclick="askBall()">Ask Magic 8-Ball</button>
+    </div>
+
+    <!-- 5. Draw Card -->
+    <div id="card-mode" class="mode-section">
+      <div class="card black" id="cardEl">🎴</div>
+      <div class="result-text" id="cardRes">Red = YES, Black = NO</div>
+      <button class="action-btn" onclick="drawCard()">Draw Card</button>
+    </div>
+
+  </div>
+
+  <script>
+    function switchMode(mode) {
+      document.querySelectorAll('.mode-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+      document.getElementById(mode + '-mode').classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // 1. Coin Flip Logic
+    function flipCoin() {
+      const coin = document.getElementById('coinEl');
+      const res = document.getElementById('coinRes');
+      coin.classList.add('flipping');
+      res.innerText = 'Flipping...';
+
+      setTimeout(() => {
+        coin.classList.remove('flipping');
+        const isHeads = Math.random() < 0.5;
+        coin.innerText = isHeads ? 'HEADS' : 'TAILS';
+        res.innerText = isHeads ? 'Result: HEADS (Go for Option A)' : 'Result: TAILS (Go for Option B)';
+      }, 600);
+    }
+
+    // 2. Dice Roll Logic
+    function rollDice() {
+      const dice = document.getElementById('diceEl');
+      const res = document.getElementById('diceRes');
+      dice.classList.add('rolling');
+      res.innerText = 'Rolling...';
+
+      setTimeout(() => {
+        dice.classList.remove('rolling');
+        const val = Math.floor(Math.random() * 6) + 1;
+        dice.innerText = val;
+        res.innerText = `You rolled a ${val}!`;
+      }, 500);
+    }
+
+    // 3. Decision Spinner Logic
+    function spinWheel() {
+      const el = document.getElementById('spinEl');
+      const res = document.getElementById('spinRes');
+      const options = [
+        '✅ Do It Now!', 
+        '❌ Don\'t Do It', 
+        '⏳ Wait & Think', 
+        '🗣️ Ask a Friend', 
+        '🎲 Try Again', 
+        '⭐ Definitely YES'
+      ];
+
+      el.innerText = '🌀 Spinning...';
+      res.innerText = 'Finding the best decision...';
+
+      setTimeout(() => {
+        const choice = options[Math.floor(Math.random() * options.length)];
+        el.innerText = choice;
+        res.innerText = 'Decision made!';
+      }, 600);
+    }
+
+    // 4. Magic 8-Ball Logic
+    function askBall() {
+      const el = document.getElementById('ballEl');
+      const res = document.getElementById('ballRes');
+      const answers = ['Yes!', 'No way', 'Most Likely', 'Ask Again', 'Cannot Predict', 'Outlook Good', 'Don\'t Count On It'];
+
+      el.innerText = '...';
+      res.innerText = 'Consulting the magic sphere...';
+
+      setTimeout(()
